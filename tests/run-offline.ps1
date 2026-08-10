@@ -441,6 +441,102 @@ try {
     Assert-ProbeCondition ($farSnippetParsed.results[0].title -ceq 'Title One') 'Distant-snippet page lost its title.'
     Assert-ProbeCondition ($farSnippetParsed.results[0].snippet -ceq 'Snippet text') 'A snippet past the old 6000-character cut was silently lost.'
 
+    # Regression 5: raw-text elements at the top level of a page. Their contents
+    # are text, not markup, and real script and style bodies are full of '<'
+    # ("for (var i=0;i<10;i++)", ".a<b{}"). Tokenizing that as markup rejected
+    # the whole page. Find-HtmlElementCloseTag already routes a *nested*
+    # raw-text element to Find-RawTextElementEnd; a top-level one must match.
+    # Neither captured fixture reaches this path: one carries no script or style
+    # at all, and the other's only <style> sits inside a <noscript>.
+    foreach ($rawTextCase in @(
+        @{ Html = '<p>Vis</p><script>for(var i=0;i<10;i++){}</script><p>After</p>'; Name = 'script body containing a less-than' },
+        @{ Html = '<p>Vis</p><style>.a<b{color:red}</style><p>After</p>'; Name = 'style body containing a less-than' },
+        @{ Html = '<p>Vis</p><script>var s="</div>";</script><p>After</p>'; Name = 'script body containing a foreign close tag' },
+        @{ Html = '<p>Vis</p><script>x</SCRIPT><p>After</p>'; Name = 'uppercase raw-text close tag' },
+        @{ Html = '<p>Vis</p><script>x</script ><p>After</p>'; Name = 'raw-text close tag with trailing space' },
+        @{ Html = '<p>Vis</p><script>x</script/><p>After</p>'; Name = 'raw-text close tag with a solidus' },
+        @{ Html = '<p>Vis</p><textarea>a<b</textarea><p>After</p>'; Name = 'textarea body containing a less-than' },
+        @{ Html = '<p>Vis</p><title>a<b</title><p>After</p>'; Name = 'title body containing a less-than' },
+        @{ Html = '<p>Vis</p><xmp>a<b</xmp><p>After</p>'; Name = 'xmp body containing a less-than' }
+    )) {
+        $rawTextStopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+        $rawTextText = ConvertFrom-HtmlText -Html $rawTextCase.Html -ParseStopwatch $rawTextStopwatch
+        Assert-ProbeCondition ($rawTextText -ceq 'Vis | After') "A top-level $($rawTextCase.Name) must be skipped as text, not tokenized as markup (got '$rawTextText')."
+    }
+
+    # The same defect at page level: an otherwise valid results page that also
+    # carries ordinary JavaScript and CSS failed the entire search.
+    $scriptedPageHtml = '<html><head><script>for(var i=0;i<10;i++){t="x";}</script>' +
+        '<style>.r>.s{a:1}.c<d{}</style></head><body>' +
+        '<a class="result__a" href="https://scripted.example/">Scripted Title</a>' +
+        '<div class="result__snippet">Scripted snippet.</div></body></html>'
+    $scriptedParsed = ConvertFrom-DuckDuckGoHtml -Html $scriptedPageHtml -Query 'scripted page' -MaxResults 1
+    Assert-ProbeCondition ($scriptedParsed.results[0].title -ceq 'Scripted Title') 'Ordinary page JavaScript or CSS must not fail the whole search.'
+    Assert-ProbeCondition ($scriptedParsed.results[0].snippet -ceq 'Scripted snippet.') 'Ordinary page JavaScript or CSS must not cost the snippet.'
+    # Reading raw text as text must not become a way to leak what it contains.
+    $rawLeakStopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+    $rawLeakText = ConvertFrom-HtmlText -Html '<p>Vis</p><script>var s="HIDDEN INSTRUCTION";if(a<b){}</script><p>After</p>' -ParseStopwatch $rawLeakStopwatch
+    Assert-ProbeCondition ($rawLeakText -ceq 'Vis | After') "Raw-text handling changed visible text (got '$rawLeakText')."
+    Assert-ProbeCondition ($rawLeakText.IndexOf('HIDDEN', [StringComparison]::Ordinal) -lt 0) 'Raw-text handling leaked script contents into visible text.'
+
+    # Regression 6: Find-RawTextElementEnd must honour every HTML end-tag
+    # terminator, not just '>'. Per the spec a raw-text element ends at '</'
+    # plus the tag name followed by whitespace, '/', or '>', matched
+    # case-insensitively, so </SCRIPT>, </script >, and </script/> all close a
+    # <script>. A literal IndexOf('</script>') would miss all three. An end tag
+    # may also carry attributes, so a '>' inside a quoted end-tag value does not
+    # close the element. '<script>' is eight characters, so contents start at 8.
+    foreach ($endTagCase in @(
+        @{ Html = '<script>X</script>T'; Expected = 18; Name = 'lowercase close tag' },
+        @{ Html = '<script>X</SCRIPT>T'; Expected = 18; Name = 'uppercase close tag' },
+        @{ Html = '<script>X</ScRiPt>T'; Expected = 18; Name = 'mixed-case close tag' },
+        @{ Html = '<script>X</script >T'; Expected = 19; Name = 'close tag with a trailing space' },
+        @{ Html = "<script>X</script`t>T"; Expected = 19; Name = 'close tag with a trailing tab' },
+        @{ Html = '<script>X</script/>T'; Expected = 19; Name = 'close tag with a solidus' },
+        @{ Html = '<script>X</scriptx>Y</script>T'; Expected = 29; Name = 'longer tag name is not a terminator' },
+        @{ Html = '<script>X and more'; Expected = -1; Name = 'no close tag in the buffer' },
+        @{ Html = '<script>X</script'; Expected = -1; Name = 'buffer ends inside the close tag' },
+        @{ Html = '<script>X</script foo="a>b">T'; Expected = 28; Name = 'close tag whose attribute value holds a greater-than' }
+    )) {
+        $endTagStopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+        $endTagIndex = Find-RawTextElementEnd -Html $endTagCase.Html -TagName 'script' -SearchFrom 8 -ParseStopwatch $endTagStopwatch
+        Assert-ProbeCondition ($endTagIndex -eq $endTagCase.Expected) "Raw-text end detection for '$($endTagCase.Name)' returned $endTagIndex, expected $($endTagCase.Expected)."
+    }
+
+    # Regression 7: the Truncated discriminator. Ambiguity running to the end of
+    # the buffer is truncation this server caused by cutting at a length budget;
+    # ambiguity ending before the buffer does is a real anomaly and fails closed.
+    # Markup that is genuinely malformed in the final tag of a buffer is
+    # byte-identical to a buffer cut at that point, so it is necessarily
+    # classified as truncation. That fail-open is deliberate and bounded: every
+    # caller drops the remaining bytes, so the misclassification can lose
+    # content but can never reveal content that was hidden.
+    foreach ($discriminatorCase in @(
+        @{ Html = '<a href="unclosed'; Truncated = $true; Name = 'unclosed double quote at end of buffer' },
+        @{ Html = "<a href='unclosed"; Truncated = $true; Name = 'unclosed single quote at end of buffer' },
+        @{ Html = '<spa'; Truncated = $true; Name = 'tag name cut at end of buffer' },
+        @{ Html = '<a x="1" x="2"'; Truncated = $true; Name = 'duplicate attribute at end of buffer' },
+        @{ Html = '<a class="x"<b>rest'; Truncated = $false; Name = 'malformed tag in the buffer interior' },
+        @{ Html = '<a x="1" x="2">rest'; Truncated = $false; Name = 'duplicate attribute in the buffer interior' }
+    )) {
+        $discriminatorStopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+        $discriminatorTag = Read-HtmlTagAt -Html $discriminatorCase.Html -StartIndex 0 -ParseStopwatch $discriminatorStopwatch
+        Assert-ProbeCondition ($discriminatorTag.Ambiguous -eq $true) "Discriminator case '$($discriminatorCase.Name)' was expected to parse as ambiguous."
+        Assert-ProbeCondition ($discriminatorTag.Truncated -eq $discriminatorCase.Truncated) "Discriminator case '$($discriminatorCase.Name)' set Truncated=$($discriminatorTag.Truncated), expected $($discriminatorCase.Truncated)."
+    }
+
+    # The bound on that fail-open, asserted rather than assumed: a hidden region
+    # followed by malformed markup at the end of the buffer stays hidden, and
+    # the bytes inside the ambiguous tag are dropped rather than emitted.
+    $failOpenStopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+    $failOpenText = ConvertFrom-HtmlText -Html '<p>Vis</p><script>HIDDEN INSTRUCTION</script><p>After</p><a href="unclosed TRAILING' -ParseStopwatch $failOpenStopwatch
+    Assert-ProbeCondition ($failOpenText -ceq 'Vis | After') "End-of-buffer ambiguity must drop the remaining bytes (got '$failOpenText')."
+    Assert-ProbeCondition ($failOpenText.IndexOf('HIDDEN', [StringComparison]::Ordinal) -lt 0) 'End-of-buffer ambiguity revealed a hidden region.'
+    Assert-ProbeCondition ($failOpenText.IndexOf('TRAILING', [StringComparison]::Ordinal) -lt 0) 'End-of-buffer ambiguity emitted text from inside the ambiguous tag.'
+    $openerCutStopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+    $openerCutText = ConvertFrom-HtmlText -Html '<p>Vis</p><script src="unclosed HIDDEN' -ParseStopwatch $openerCutStopwatch
+    Assert-ProbeCondition ($openerCutText -ceq 'Vis') "A hidden-region opener cut at end of buffer must hide the rest (got '$openerCutText')."
+
     # A malformed tag in the interior of a buffer is not truncation and must
     # still fail closed, so the fixes above cannot be mistaken for disabling the
     # parser's suspicion of bad markup.

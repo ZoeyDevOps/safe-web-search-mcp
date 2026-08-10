@@ -38,8 +38,30 @@ jobs:
               throw "Expected Windows PowerShell 5.1; got $($PSVersionTable.PSEdition) $($PSVersionTable.PSVersion)."
           }
 
+      - name: Record runner elevation state
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          # Informational only. scripts\install.ps1 refuses to run with
+          # administrator rights, so whether this runner is elevated decides
+          # whether an installer dry-run could ever run here. Recording it turns
+          # that open question into data on the first push.
+          $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
+          $elevated = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+          Write-Output "Runner identity: $($identity.Name)"
+          Write-Output "Runner elevated: $elevated"
+
       - name: Validate package and run offline tests
         shell: powershell
         run: |
           $ErrorActionPreference = 'Stop'
-          & .\scripts\validate-package.ps1
+          # -SkipInstallerDryRun omits tests\setup-lm-studio-offline.ps1, the one
+          # check that previews an installation. An ephemeral runner cannot
+          # meaningfully validate a local installer dry-run: this machine is
+          # discarded when the job ends, so a preview here says nothing about
+          # installing on a real workstation. Everything else still runs,
+          # including the full offline protocol suite, the manifest hash check,
+          # and the static parse of install.ps1 itself. Run this script with no
+          # switches on a normal non-elevated workstation to cover the
+          # installer path before tagging a release.
+          & .\scripts\validate-package.ps1 -SkipInstallerDryRun

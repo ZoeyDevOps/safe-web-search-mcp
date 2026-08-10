@@ -5,7 +5,7 @@
   "minimum_windows_powershell": "5.1",
   "server": {
     "path": "src/server.ps1",
-    "sha256": "DD13065CD12B04831BF6B1834363ED14A1C433B394DAC0FE17B58E07CA350A0E"
+    "sha256": "70807707D2DA29023933D2E3CBEEC5C17BB0A66B049E6FE8094C2A8F4B068BD7"
   },
   "supported_protocol_versions": [
     "2025-11-25",

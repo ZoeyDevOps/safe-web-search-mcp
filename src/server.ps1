@@ -364,6 +364,19 @@ function Remove-HiddenHtmlRegions {
             # Treat a self-closing or plaintext opener as hidden through EOF.
             if ($tag.Name -ceq 'plaintext' -or $tag.IsSelfClosing) { break }
 
+            if ($script:RawTextHtmlTagNames -ccontains $tag.Name) {
+                # Contents are text, not markup, so scan for the literal close
+                # tag instead of tokenizing what is inside. Real script and
+                # style bodies are full of '<' ("for (var i=0;i<10;i++)"), and
+                # reading that as a tag would reject the whole page.
+                # Find-HtmlElementCloseTag treats a nested raw-text element the
+                # same way; a top-level one must not be handled differently.
+                $rawEnd = Find-RawTextElementEnd -Html $Html -TagName $tag.Name -SearchFrom $tag.EndIndex -ParseStopwatch $ParseStopwatch
+                if ($rawEnd -lt 0) { break }
+                $position = $rawEnd
+                continue
+            }
+
             $closeTag = Find-HtmlElementCloseTag -Html $Html -OpenTag $tag -ParseStopwatch $ParseStopwatch
             if ($null -eq $closeTag) { break }
             $position = $closeTag.EndIndex
@@ -423,6 +436,16 @@ function Read-HtmlTagAt {
     # truncation this code caused, not markup the provider got wrong. Callers
     # stop scanning and keep what they already parsed. Ambiguity that ends
     # before the buffer does is a real anomaly and still fails closed.
+    #
+    # This deliberately fails open in one direction: markup that is genuinely
+    # malformed in the *final* tag of a buffer -- an unclosed quote at the end,
+    # say -- is byte-identical to a buffer cut at that point, so it is
+    # classified as truncation too. No parser can tell the two apart, and
+    # failing closed instead would reject every page the length budget trims.
+    # The fail-open is bounded by what callers do with it: each one drops the
+    # bytes from the ambiguity onward, so a misclassification can lose content
+    # but can never reveal content that was hidden. tests/run-offline.ps1
+    # asserts both halves of that bound.
     if ($tag.Ambiguous -and $tag.EndIndex -ge $Html.Length) {
         $tag.Truncated = $true
     }
@@ -636,10 +659,25 @@ function Find-RawTextElementEnd {
         if ($found -lt 0) { return -1 }
         $after = $found + $marker.Length
         if ($after -ge $Html.Length) { return -1 }
-        if ($Html[$after] -eq [char]'>' -or (Test-HtmlAsciiWhitespace -Character $Html[$after]) -or $Html[$after] -eq [char]'/') {
-            $close = $Html.IndexOf([char]'>', $after)
-            if ($close -lt 0) { return -1 }
-            return $close + 1
+        if ($Html[$after] -eq [char]'>') { return $after + 1 }
+        if ((Test-HtmlAsciiWhitespace -Character $Html[$after]) -or $Html[$after] -eq [char]'/') {
+            # Whitespace or '/' after the name puts HTML in its attribute states,
+            # so this end tag may carry attributes. A '>' inside a quoted value
+            # does not close it, and stopping at the first one would end the
+            # element early and spill raw text into visible text.
+            $quoteCharacter = [char]0
+            for ($scan = $after; $scan -lt $Html.Length; $scan++) {
+                if ((($scan - $after) -band 255) -eq 0) { Assert-ParseBudget -ParseStopwatch $ParseStopwatch }
+                $character = $Html[$scan]
+                if ($quoteCharacter -ne [char]0) {
+                    if ($character -eq $quoteCharacter) { $quoteCharacter = [char]0 }
+                } elseif ($character -eq [char]34 -or $character -eq [char]39) {
+                    $quoteCharacter = $character
+                } elseif ($character -eq [char]'>') {
+                    return $scan + 1
+                }
+            }
+            return -1
         }
         $position = $after
     }

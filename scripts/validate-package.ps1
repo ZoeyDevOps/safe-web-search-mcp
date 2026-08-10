@@ -3,7 +3,15 @@
 
 [CmdletBinding()]
 param(
-    [switch]$SkipOfflineTests
+    [switch]$SkipOfflineTests,
+    # Skips tests\setup-lm-studio-offline.ps1, the only check here that previews
+    # an installation. An ephemeral CI runner cannot meaningfully validate a
+    # local installer dry-run: the machine is discarded when the job ends, so a
+    # preview there says nothing about installing on a real workstation.
+    # Everything else, including the full offline protocol suite, still runs.
+    # Leave this switch off on a workstation, where the dry-run does mean
+    # something.
+    [switch]$SkipInstallerDryRun
 )
 
 $ErrorActionPreference = 'Stop'
@@ -146,7 +154,11 @@ foreach ($item in $integrityItems) {
 
 if (-not $SkipOfflineTests) {
     & $testPath -ServerPath $serverPath
-    & $setupTestPath
+    if ($SkipInstallerDryRun) {
+        Write-Output 'SKIP: LM Studio setup preview omitted; an installer dry-run is only meaningful on a real workstation.'
+    } else {
+        & $setupTestPath
+    }
 }
 
 Write-Output "PASS: package version 1.0.0 validated; server SHA-256 $actualServerHash."

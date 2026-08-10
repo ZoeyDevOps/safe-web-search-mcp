@@ -14,3 +14,6 @@ Initial public release.
 - Results carry UTC completion time, unknown-freshness and unverified-snippet
   markers.
 - Unrecognized, blocked, or truncated provider responses fail closed.
+- Script, style, and other raw-text elements are read as text wherever they
+  appear, so ordinary page JavaScript cannot fail a search and their contents
+  never reach visible result text.
