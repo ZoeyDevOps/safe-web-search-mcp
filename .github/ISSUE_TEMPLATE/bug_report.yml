@@ -1,0 +1,53 @@
+name: Bug report
+description: Report a repeatable problem with the server, protocol, or documentation.
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not report security vulnerabilities here; use SECURITY.md. Remove queries, usernames, local paths, proxy details, and secrets from logs.
+  - type: input
+    id: host
+    attributes:
+      label: MCP host and version
+      description: For example, LM Studio 0.4.20 Build 1.
+    validations:
+      required: true
+  - type: input
+    id: windows
+    attributes:
+      label: Windows and PowerShell versions
+      description: Run `$PSVersionTable.PSVersion` to find the PowerShell version.
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened?
+      description: Describe the expected and actual behavior without including a private search query.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction steps
+      description: Give the smallest safe sequence that reproduces the problem.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Redacted logs
+      description: Paste only the relevant lines after removing private data. Leave blank if none.
+      render: text
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I ran `tests/run-offline.ps1` and will include whether it passed.
+          required: true
+        - label: I removed secrets, queries, usernames, local paths, and proxy details.
+          required: true
+        - label: This is not a security vulnerability.
+          required: true

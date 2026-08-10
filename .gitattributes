@@ -1,0 +1,18 @@
+* text=auto
+
+*.ps1 text eol=crlf
+*.psm1 text eol=crlf
+*.psd1 text eol=crlf
+*.cmd text eol=crlf
+# Preserve the released server bytes so release-manifest.json stays valid in
+# GitHub source archives as well as Windows checkouts.
+src/server.ps1 -text -eol
+# Keep captured-page fixtures byte-stable so line-ending normalization cannot
+# change what the parser tests actually parse. Their trailing whitespace is the
+# provider's own and is deliberately preserved, so exempt them from whitespace
+# checks rather than reformatting a captured page.
+tests/fixtures/*.html -text -eol -whitespace
+*.md text eol=lf
+*.json text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf

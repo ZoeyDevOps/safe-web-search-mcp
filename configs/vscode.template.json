@@ -1,0 +1,17 @@
+{
+  "servers": {
+    "safe-web-search": {
+      "type": "stdio",
+      "command": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+      "args": [
+        "-NoLogo",
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:/REPLACE_WITH_ABSOLUTE_PATH/safe-web-search-mcp/src/server.ps1"
+      ]
+    }
+  }
+}

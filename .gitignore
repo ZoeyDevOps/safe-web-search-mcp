@@ -1,0 +1,23 @@
+# Local host and editor configuration can contain absolute paths or secrets.
+/mcp.json
+/claude_desktop_config.json
+/.cursor/
+/.vscode/
+/.claude/
+/.idea/
+
+# Local backups and diagnostics.
+*.bak
+*.backup-*
+*.log
+*.tmp
+
+# Test output.
+/TestResults/
+/coverage/
+*.trx
+
+# Operating-system metadata.
+.DS_Store
+Desktop.ini
+Thumbs.db

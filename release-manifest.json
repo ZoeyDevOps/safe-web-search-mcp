@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "name": "safe-web-search",
+  "version": "1.0.0",
+  "minimum_windows_powershell": "5.1",
+  "server": {
+    "path": "src/server.ps1",
+    "sha256": "DD13065CD12B04831BF6B1834363ED14A1C433B394DAC0FE17B58E07CA350A0E"
+  },
+  "supported_protocol_versions": [
+    "2025-11-25",
+    "2025-06-18"
+  ]
+}
