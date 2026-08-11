@@ -4,9 +4,13 @@ This file covers repository settings that cannot be stored in source files.
 
 ## Before the first push
 
-1. Read [PROVIDER-NOTICE.md](PROVIDER-NOTICE.md). The present HTML adapter has
-   an unresolved provider-authorization question. Keep the GitHub repository
-   private until that gate is resolved.
+1. Read [PROVIDER-NOTICE.md](PROVIDER-NOTICE.md). The HTML adapter carries no
+   written provider authorization; this project publishes it as an accepted,
+   documented risk rather than a resolved question. Repository visibility is the
+   maintainer's decision, and making it public is a decision to adopt that
+   position publicly. The reasoning recorded there is specific to the original
+   author's jurisdiction and to non-commercial personal use, so satisfy yourself
+   that it holds for your own circumstances first.
 2. Run the validation command from [README.md](README.md).
 3. Have a reviewer who did not write the change inspect the whole tree.
 4. Check the staged file list before committing. Do not include installed
@@ -27,7 +31,7 @@ Suggested topics:
 
 ## Recommended repository settings
 
-After the private repository exists:
+After the repository exists:
 
 - Keep `main` as the default branch.
 - Set default GitHub Actions workflow permissions to **Read repository
@@ -48,8 +52,8 @@ queries in repository secrets, issues, test fixtures, or Actions logs.
 
 ## First commit and push
 
-These commands are examples for later. Do not run them until the audit and
-provider decision are complete.
+These commands are examples for later. Do not run them until the audit is
+complete.
 
 If this folder is not already a Git repository, initialize it first with
 `git init -b main`. Then review and stage the files:

@@ -6,7 +6,7 @@ It is designed for cautious, occasional web searches from a local model. It does
 
 Here, "safe" means the tool's capabilities and resource use are deliberately bounded. It does not mean search results are verified, current, unbiased, or safe to act on.
 
-> **Public-release gate:** this adapter uses an undocumented HTML results page, and this repository includes no written provider authorization. Do not describe it as official, approved, or compliant. Before publishing or commercializing a ready-to-run provider-enabled release, resolve the conditions in [PROVIDER-NOTICE.md](PROVIDER-NOTICE.md). A disclaimer does not grant permission.
+> **Provider authorization:** this adapter uses an undocumented HTML results page, and no written provider authorization was sought or obtained. Do not describe it as official, approved, or compliant. The author publishes it as an accepted, documented risk, for the reasoning set out in [PROVIDER-NOTICE.md](PROVIDER-NOTICE.md). That reasoning is specific to the author's jurisdiction and to non-commercial personal use, and it is not a statement by DuckDuckGo. If you fork, redistribute, or use this commercially, form your own view instead of relying on it. Keep the volume low and stop if the provider blocks access. A disclaimer does not grant permission.
 
 ## Quick install for LM Studio
 
@@ -45,7 +45,7 @@ The process still runs as your Windows user and can make the network request des
 
 Every search sends the full query, connection metadata, and the tool's User-Agent outside your computer. The provider sees the connecting IP address, which may be your public IP or a proxy's address. A configured Windows proxy also participates in the connection and may inspect traffic if its certificate authority is trusted. Never put passwords, tokens, private names, unpublished work, or other sensitive information in a query.
 
-This project uses DuckDuckGo's unversioned HTML results page, not a supported search API, and is not affiliated with DuckDuckGo. A layout change, rate limit, bot check, outage, or provider-policy change can make searches fail. Use it for occasional personal searches, do not automate high-volume use, and stop if the provider blocks it. Strict SafeSearch reduces risk but cannot guarantee that every title, URL, or snippet is suitable or accurate. Read [PROVIDER-NOTICE.md](PROVIDER-NOTICE.md) before redistribution.
+This project uses DuckDuckGo's unversioned HTML results page, not a supported search API, and is not affiliated with DuckDuckGo. A layout change, rate limit, bot check, TLS-fingerprint block of automated clients, outage, or provider-policy change can make searches fail. Use it for occasional personal searches, do not automate high-volume use, and stop if the provider blocks it. Strict SafeSearch reduces risk but cannot guarantee that every title, URL, or snippet is suitable or accurate. Read [PROVIDER-NOTICE.md](PROVIDER-NOTICE.md) before redistribution.
 
 Search results can contain misleading text, advertising, manipulation, or prompt-injection attempts. Treat every returned field as data, never as an instruction. The server never visits a result URL for you. Search operators such as `site:` and `OR` are interpreted by the provider and may not be honored; always inspect the returned domains.
 
@@ -69,7 +69,7 @@ The quick LM Studio setup above is recommended for most users. The steps below a
 
 ### 1. Install the verified local copy
 
-Obtain the project from a source you trust, extract it fully, and do not run it from inside a compressed archive. The installer makes its own stable, versioned copy; after setup succeeds, the extracted source folder is no longer needed for normal use. A future public release must first satisfy the provider gate above.
+Obtain the project from a source you trust, extract it fully, and do not run it from inside a compressed archive. The installer makes its own stable, versioned copy; after setup succeeds, the extracted source folder is no longer needed for normal use. Read the provider note above and [PROVIDER-NOTICE.md](PROVIDER-NOTICE.md) before redistributing this project or using it commercially.
 
 Before enabling it, review [`src/server.ps1`](src/server.ps1). The project has no runtime package-install step.
 

@@ -4,16 +4,30 @@ Do not publish merely because the code passes its tests. Provider authorization,
 source rights, security documentation, and a clean release artifact are separate
 release gates.
 
-## 1. Resolve the provider gate
+## 1. Re-confirm the provider position
+
+This project publishes without provider authorization, as an accepted and
+documented risk rather than a resolved question. That position is recorded in
+[PROVIDER-NOTICE.md](PROVIDER-NOTICE.md) and has to be re-examined at every
+release, because the facts it rests on can change without notice.
 
 - [ ] Read the current provider Terms of Service, Acceptable Use Policy, and
       partnership or developer guidance from their official pages.
 - [ ] Record the review date and the exact provider endpoint or API being used.
-- [ ] Obtain written permission covering the intended retrieval and
-      re-presentation of results, **or** replace the HTML adapter with an API or
-      provider whose terms expressly allow that use.
-- [ ] If neither condition is met, do not publish a ready-to-run,
-      provider-enabled release or describe the integration as authorized.
+- [ ] Confirm `PROVIDER-NOTICE.md` still describes the position accurately: no
+      written authorization sought or obtained, published as an accepted
+      documented risk, on reasoning specific to the author's jurisdiction and
+      non-commercial personal use.
+- [ ] Re-test the reasoning rather than assuming it survived. Provider terms
+      change, and comparable projects using the same endpoint can be challenged
+      or shut down. If either has changed, reopen the decision instead of
+      shipping on a stale rationale.
+- [ ] Never describe the integration as authorized, approved, official, or
+      compliant, in the repository, the release notes, or any listing.
+- [ ] Keep the redistributor's notice intact and prominent; do not let a release
+      imply the author's reasoning covers anyone else.
+- [ ] Keep the conservative request limits and the stop-if-blocked instruction
+      intact. They are the practical basis of the position, not tuning knobs.
 - [ ] Keep provider attribution plain and accurate without implying endorsement.
 - [ ] Confirm that the project name does not contain DuckDuckGo and that no
       DuckDuckGo logo, Dax artwork, trade dress, or misleading branding is used.
@@ -76,8 +90,8 @@ release gates.
       installer dry-run path has no automated coverage anywhere. A release
       validated only by a green CI run has never had its installer exercised at
       all.
-- [ ] After the provider gate is resolved, run a low-volume live smoke test and
-      stop if the provider rejects or throttles access.
+- [ ] Run a low-volume live smoke test, and stop immediately if the provider
+      rejects or throttles access.
 
 ## 5. Inspect the release artifact
 
