@@ -2,7 +2,14 @@
 
 This file covers repository settings that cannot be stored in source files.
 
+It has two audiences. It records the setup this repository uses, and it doubles
+as a checklist for anyone forking or re-hosting the project. The steps read as
+instructions because they are written for that second reader; a visitor to this
+repository is not being asked to carry them out.
+
 ## Before the first push
+
+Completed for this repository. For a fork, work through these first.
 
 1. Read [PROVIDER-NOTICE.md](PROVIDER-NOTICE.md). The HTML adapter carries no
    written provider authorization; this project publishes it as an accepted,
@@ -52,8 +59,9 @@ queries in repository secrets, issues, test fixtures, or Actions logs.
 
 ## First commit and push
 
-These commands are examples for later. Do not run them until the audit is
-complete.
+These commands record how this repository first reached GitHub, and are the same
+steps for a fork. If you are following them, run them only after the audit above
+is complete.
 
 If this folder is not already a Git repository, initialize it first with
 `git init -b main`. Then review and stage the files:
