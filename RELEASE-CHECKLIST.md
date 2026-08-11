@@ -84,6 +84,15 @@ release gates.
       must substitute an absolute local path.
 - [ ] Keep the version consistent in source, User-Agent, documentation,
       changelog, tag, and archive name.
+- [ ] Set the changelog heading to `## <version> - <publication date>` and commit
+      that change **before** creating the tag, then create the tag at that
+      commit. A tag made while the heading still reads `## Unreleased` violates
+      the version-consistency item above, because the tagged tree does not name
+      the version it claims.
+- [ ] Delete and recreate any tag that was created against an `## Unreleased`
+      heading before that tag is pushed. The local `v1.0.0` tag marks a
+      validated pre-publication state, not a release; replace it with a tag on
+      the dated commit.
 - [ ] Verify that the archive contains only intended source, documentation,
       configuration examples, tests, and license files.
 - [ ] On a clean standard-user Windows account, extract the archive and test
