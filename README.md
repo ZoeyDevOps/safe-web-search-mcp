@@ -276,7 +276,7 @@ Changes should preserve these boundaries:
 - JSON-RPC only on standard output;
 - no runtime dependency downloads.
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) before proposing a change. Release history is in [CHANGELOG.md](CHANGELOG.md). Report security issues privately using [SECURITY.md](SECURITY.md), and follow [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md). Repository owners should also review [GITHUB-SETUP.md](GITHUB-SETUP.md) before the first push.
+See [CONTRIBUTING.md](CONTRIBUTING.md) before proposing a change. Release history is in [CHANGELOG.md](CHANGELOG.md). Report security issues privately using [SECURITY.md](SECURITY.md), and follow [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md). Anyone forking or re-hosting the project should also review [GITHUB-SETUP.md](GITHUB-SETUP.md).
 
 ## License
 
