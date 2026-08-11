@@ -12,6 +12,8 @@ Here, "safe" means the tool's capabilities and resource use are deliberately bou
 
 ## Get the project
 
+**Release status:** no tagged release has been published. The Git command and the Download ZIP instructions below obtain a snapshot of the `main` branch. The `1.0.0` that appears in this file, in the manifest, and in the installation-folder name is the version the server reports about itself; it is not a published release. Under [SECURITY.md](SECURITY.md), the project is pre-release and no stable version is currently supported.
+
 With Git:
 
 ```powershell
@@ -26,13 +28,13 @@ A clone carries no Mark of the Web; a downloaded archive does, which is why the 
 
 Windows tags downloaded files with the Mark of the Web, and GitHub source archives are downloaded files. Double-clicking `Install for LM Studio.cmd` therefore raises a SmartScreen warning. That is expected for any script obtained from the internet and says nothing about this one in particular. Check the file yourself, then decide.
 
-From the extracted project folder, confirm the server matches the hash recorded in the release manifest:
+From the extracted project folder, confirm the server matches the hash recorded in the manifest file:
 
 ```powershell
 (Get-FileHash -Algorithm SHA256 .\src\server.ps1).Hash -eq (Get-Content .\release-manifest.json -Raw | ConvertFrom-Json).server.sha256
 ```
 
-`True` means `src/server.ps1` is byte-for-byte the file this release published. Anything else, including an error, means stop.
+`True` means `src/server.ps1` matches the hash recorded in `release-manifest.json` **in the same snapshot you just obtained**. That detects accidental corruption and an inconsistent snapshot. It does not prove who published the files, where the download came from, or that any signature or release is authentic: both halves of the comparison travel together, so anyone who altered one could alter the other. Anything other than `True`, including an error, means stop.
 
 The manifest records that one hash and nothing else, so this check says nothing about `Install for LM Studio.cmd`, [`scripts/setup-lm-studio.ps1`](scripts/setup-lm-studio.ps1), or [`scripts/install.ps1`](scripts/install.ps1) - the three files that actually run when you double-click. Read them before the first run, as you should read [`src/server.ps1`](src/server.ps1) before enabling it.
 
@@ -193,7 +195,7 @@ You normally do not start `server.ps1` yourself; the AI host starts it when need
 
 ## Update or remove it
 
-To update LM Studio, download and extract the reviewed new release, then run `Install for LM Studio.cmd` again. It installs into a new versioned folder and opens LM Studio's confirmation with the new path. Test the new version before deleting the old folder. Other hosts can be updated by changing their configured server path manually.
+To update LM Studio, obtain and review a newer snapshot, extract it, then run `Install for LM Studio.cmd` again. It installs into a new versioned folder and opens LM Studio's confirmation with the new path. Test the new version before deleting the old folder. Other hosts can be updated by changing their configured server path manually.
 
 To remove it, first delete the `safe-web-search` entry from every host configuration and restart those hosts. Then use File Explorer to delete the exact installed version folder reported by the installer. Do not delete the shared `%LOCALAPPDATA%\Programs` folder.
 
@@ -276,7 +278,7 @@ Changes should preserve these boundaries:
 - JSON-RPC only on standard output;
 - no runtime dependency downloads.
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) before proposing a change. Release history is in [CHANGELOG.md](CHANGELOG.md). Report security issues privately using [SECURITY.md](SECURITY.md), and follow [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md). Anyone forking or re-hosting the project should also review [GITHUB-SETUP.md](GITHUB-SETUP.md).
+See [CONTRIBUTING.md](CONTRIBUTING.md) before proposing a change. Change history is in [CHANGELOG.md](CHANGELOG.md). Report security issues privately using [SECURITY.md](SECURITY.md), and follow [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md). Anyone forking or re-hosting the project should also review [GITHUB-SETUP.md](GITHUB-SETUP.md).
 
 ## License
 
