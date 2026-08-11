@@ -51,6 +51,54 @@ jobs:
           Write-Output "Runner identity: $($identity.Name)"
           Write-Output "Runner elevated: $elevated"
 
+      - name: Assert the installer refuses to run elevated
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          # Check the assumption this whole step rests on before acting on it, so
+          # a changed runner image reports itself instead of surfacing as a fake
+          # security regression below.
+          $elevated = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+          if (-not $elevated) {
+              throw "PRECONDITION NOT MET: this runner is not elevated, so install.ps1's administrator guard cannot be exercised here. This is not a guard regression - the test's assumption about hosted runners no longer holds. Re-evaluate whether this step still provides coverage."
+          }
+          # The hosted runner is elevated, which is exactly the condition
+          # scripts\install.ps1 exists to refuse. That makes CI the one place
+          # where the guard's trigger is guaranteed, so test the guard here
+          # rather than assume it still works.
+          #
+          # -WhatIf bounds the blast radius. The guard throws before any
+          # ShouldProcess call, so it does not weaken the assertion, but if the
+          # guard ever regressed the installer would no-op instead of writing to
+          # the runner. A regression still fails this step on the exit code.
+          #
+          # Start-Process with redirected streams, not '2>&1': in Windows
+          # PowerShell 5.1 redirecting a native command's stderr wraps each line
+          # in a NativeCommandError, which under 'Stop' aborts the step before
+          # the exit code can be read.
+          $installer = Join-Path $env:GITHUB_WORKSPACE 'scripts\install.ps1'
+          $out = Join-Path $env:RUNNER_TEMP 'installer-elevated-out.txt'
+          $err = Join-Path $env:RUNNER_TEMP 'installer-elevated-err.txt'
+          $shell = Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'
+          $process = Start-Process -FilePath $shell -Wait -PassThru -NoNewWindow `
+              -WorkingDirectory $env:GITHUB_WORKSPACE `
+              -ArgumentList '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $installer, '-WhatIf' `
+              -RedirectStandardOutput $out -RedirectStandardError $err
+          $stdout = [string](Get-Content -LiteralPath $out -Raw -ErrorAction SilentlyContinue)
+          $stderr = [string](Get-Content -LiteralPath $err -Raw -ErrorAction SilentlyContinue)
+          Write-Output "installer exit code: $($process.ExitCode)"
+          Write-Output '--- installer stdout ---'
+          Write-Output $stdout
+          Write-Output '--- installer stderr ---'
+          Write-Output $stderr
+          if ($process.ExitCode -eq 0) {
+              throw 'SECURITY REGRESSION: scripts\install.ps1 exited 0 on an elevated runner. The administrator guard no longer refuses elevation.'
+          }
+          if ("$stdout`n$stderr" -notmatch '(?i)administrator|elevat') {
+              throw "scripts\install.ps1 exited $($process.ExitCode) on an elevated runner, but its message never named elevation, so the non-zero exit may have come from an unrelated failure."
+          }
+          Write-Output 'PASS: the installer refused to run elevated and said why.'
+
       - name: Validate package and run offline tests
         shell: powershell
         run: |

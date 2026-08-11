@@ -70,6 +70,12 @@ release gates.
 - [ ] Run the LM Studio setup preview test and confirm that it performs no
       writes, makes no network request, embeds the verified versioned path, and
       produces the expected local `lmstudio://add_mcp` confirmation link.
+- [ ] Run `scripts\validate-package.ps1` with **no switches** on a non-elevated
+      Windows workstation. This is mandatory, not optional. CI always passes
+      `-SkipInstallerDryRun`, and the hosted runner is elevated, so the
+      installer dry-run path has no automated coverage anywhere. A release
+      validated only by a green CI run has never had its installer exercised at
+      all.
 - [ ] After the provider gate is resolved, run a low-volume live smoke test and
       stop if the provider rejects or throttles access.
 
