@@ -1,5 +1,7 @@
 # Safe Web Search MCP
 
+[![Offline validation](https://github.com/ZoeyDevOps/safe-web-search-mcp/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ZoeyDevOps/safe-web-search-mcp/actions/workflows/ci.yml)
+
 Safe Web Search MCP is a small, dependency-free MCP server for Windows. MCP is a standard way for an AI app to start a separate tool. This server gives a compatible app one tool, `search_web`, which returns search-result titles, URLs, and snippets.
 
 It is designed for cautious, occasional web searches from a local model. It does not turn the model itself into an online model, open result pages, or read full articles.
@@ -7,6 +9,18 @@ It is designed for cautious, occasional web searches from a local model. It does
 Here, "safe" means the tool's capabilities and resource use are deliberately bounded. It does not mean search results are verified, current, unbiased, or safe to act on.
 
 > **Provider authorization:** this adapter uses an undocumented HTML results page, and no written provider authorization was sought or obtained. Do not describe it as official, approved, or compliant. The author publishes it as an accepted, documented risk, for the reasoning set out in [PROVIDER-NOTICE.md](PROVIDER-NOTICE.md). That reasoning is specific to the author's jurisdiction and to non-commercial personal use, and it is not a statement by DuckDuckGo. If you fork, redistribute, or use this commercially, form your own view instead of relying on it. Keep the volume low and stop if the provider blocks access. A disclaimer does not grant permission.
+
+## Get the project
+
+With Git:
+
+```powershell
+git clone https://github.com/ZoeyDevOps/safe-web-search-mcp.git
+```
+
+Without Git, use the repository's **Code** menu, choose **Download ZIP**, and extract it fully. Do not run anything from inside the ZIP.
+
+A clone carries no Mark of the Web; a downloaded archive does, which is why the next step matters more in that case. Either way, verify what you obtained before running it.
 
 ## Verify before the first run
 
