@@ -14,17 +14,15 @@ supported. Installed copies and older snapshots do not update automatically.
 
 ## Reporting a vulnerability
 
-Before a public release, the repository maintainer should enable GitHub Private
-Vulnerability Reporting.
+GitHub Private Vulnerability Reporting is enabled for this repository. Open the
+repository's **Security** page, choose **Report a vulnerability**, and describe
+the issue there. That route is private between you and the maintainer.
 
-If private reporting is available, use the repository's **Security** page and
-choose **Report a vulnerability**. Do not put exploit details, private data, or
-secrets in a public issue.
-
-If no private reporting option is visible, open a public issue that asks the
-maintainer for a private reporting route, without including vulnerability
-details. This project does not publish a security email address, so this file
-does not invent one.
+Do not report a suspected vulnerability in a public issue, and do not put
+exploit details, private data, or secrets in one. This project does not publish
+a security email address, so this file does not invent one. If you cannot reach
+the Security page at all, open a public issue that asks for a private reporting
+route and includes no vulnerability details.
 
 Please include, when safe to do so:
 
