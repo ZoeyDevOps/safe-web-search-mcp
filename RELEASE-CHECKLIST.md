@@ -52,8 +52,11 @@ release, because the facts it rests on can change without notice.
 
 - [ ] Publish `SECURITY.md` with the supported-version policy and a real private
       reporting route.
-- [ ] Enable GitHub Private Vulnerability Reporting before making the repository
-      public; verify that maintainers receive its notifications.
+- [ ] Enable GitHub Private Vulnerability Reporting immediately after making the
+      repository public, in the same sitting; verify that maintainers receive
+      its notifications. It cannot be done beforehand, because the setting does
+      not exist on a private repository. Until it is on, `SECURITY.md` has no
+      private route to point a reporter at.
 - [ ] Document the exact network destination, query and metadata egress, Windows
       proxy behavior, TLS trust, and lack of cookies and redirects.
 - [ ] Document that result content is untrusted and can carry prompt injection.

@@ -48,11 +48,32 @@ After the repository exists:
 - Enable secret scanning and push protection where available.
 - Enable dependency alerts. Dependabot is configured only for GitHub Actions;
   this project has no package dependencies.
-- Enable **Private vulnerability reporting** before any public release.
+- Enable **Private vulnerability reporting** as soon as the repository is
+  public. It cannot be enabled earlier: the setting does not exist on a private
+  repository, and the API reports it as absent rather than disabled. Treat the
+  gap between making the repository public and turning this on as the window it
+  is, and close it in the same sitting. Until it is on, `SECURITY.md` has no
+  private route to point a reporter at.
 - Once CI has run successfully, protect `main`: require a pull request, require
-  the successful Windows PowerShell job from `.github/workflows/ci.yml`, dismiss
-  stale approvals, block force pushes, and block branch deletion.
-- Require a human review for workflow-file changes.
+  the successful Windows PowerShell job from `.github/workflows/ci.yml`, block
+  force pushes, and block branch deletion. Branch protection is also
+  unavailable on a private repository on some account plans.
+- Require the status check by its **job** name, `Windows PowerShell 5.1 /
+  offline protocol suite`, not the workflow name that the badge and run list
+  display. Requiring a name that never reports leaves `main` unmergeable with
+  no clear error.
+
+The next two depend on how many people maintain the repository, so they differ
+between this repository and a fork:
+
+- Required approvals. This repository requires zero, because a single
+  maintainer cannot approve their own pull request; requiring one approval with
+  bypass disabled would make `main` unmergeable. A fork with more than one
+  maintainer should require at least one, and should also dismiss stale
+  approvals when new commits are pushed. Dismissing stale approvals has no
+  effect at zero.
+- A human review for workflow-file changes. That is worth requiring wherever
+  more than one person can review. It is not in force here, for the same reason.
 
 Do not place provider keys, personal paths, installed configuration, or search
 queries in repository secrets, issues, test fixtures, or Actions logs.
