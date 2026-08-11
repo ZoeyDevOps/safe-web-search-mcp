@@ -120,6 +120,14 @@ release, because the facts it rests on can change without notice.
       matches the reviewed executable, arguments, timeout, and installed path.
 - [ ] Publish a SHA-256 checksum or a signed release, and verify it after
       download on a clean Windows account.
+- [ ] If a separate installation archive is attached, run the README's
+      verification command against that archive's extracted layout and confirm
+      it still works, or document a separate command for it in the same README
+      section. The checksum published above and the command a user is told to
+      run must describe one verification, not two that can drift apart.
+- [ ] Confirm the README states what that verification does not cover. The
+      manifest records only the server hash, so any change to which files are
+      hashed has to be reflected there.
 - [ ] Confirm the install location is not writable by unexpected users and is
       not a junction or other reparse point.
 

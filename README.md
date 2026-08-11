@@ -8,6 +8,24 @@ Here, "safe" means the tool's capabilities and resource use are deliberately bou
 
 > **Provider authorization:** this adapter uses an undocumented HTML results page, and no written provider authorization was sought or obtained. Do not describe it as official, approved, or compliant. The author publishes it as an accepted, documented risk, for the reasoning set out in [PROVIDER-NOTICE.md](PROVIDER-NOTICE.md). That reasoning is specific to the author's jurisdiction and to non-commercial personal use, and it is not a statement by DuckDuckGo. If you fork, redistribute, or use this commercially, form your own view instead of relying on it. Keep the volume low and stop if the provider blocks access. A disclaimer does not grant permission.
 
+## Verify before the first run
+
+Windows tags downloaded files with the Mark of the Web, and GitHub source archives are downloaded files. Double-clicking `Install for LM Studio.cmd` therefore raises a SmartScreen warning. That is expected for any script obtained from the internet and says nothing about this one in particular. Check the file yourself, then decide.
+
+From the extracted project folder, confirm the server matches the hash recorded in the release manifest:
+
+```powershell
+(Get-FileHash -Algorithm SHA256 .\src\server.ps1).Hash -eq (Get-Content .\release-manifest.json -Raw | ConvertFrom-Json).server.sha256
+```
+
+`True` means `src/server.ps1` is byte-for-byte the file this release published. Anything else, including an error, means stop.
+
+The manifest records that one hash and nothing else, so this check says nothing about `Install for LM Studio.cmd`, [`scripts/setup-lm-studio.ps1`](scripts/setup-lm-studio.ps1), or [`scripts/install.ps1`](scripts/install.ps1) - the three files that actually run when you double-click. Read them before the first run, as you should read [`src/server.ps1`](src/server.ps1) before enabling it.
+
+Only after it prints `True`, clear the download tag: right-click the downloaded archive (or the extracted `Install for LM Studio.cmd`), choose **Properties**, tick **Unblock**, and apply. At the SmartScreen prompt itself, the equivalent is **More info**, then **Run anyway**.
+
+If you cannot run that check, or would rather not, do not run the installer.
+
 ## Quick install for LM Studio
 
 From a trusted, extracted copy of the project:
