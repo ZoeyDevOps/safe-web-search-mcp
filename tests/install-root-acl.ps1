@@ -362,10 +362,11 @@ Invoke-Case 'An unexpected Allow identity on an otherwise-correct root is refuse
         [Security.AccessControl.PropagationFlags]::None,
         [Security.AccessControl.AccessControlType]::Allow)
     Add-RootAccessRule -Path $root -Rule $rule
-    $before = Get-TreeSnapshot -Path $root
 
     # Remove the version directory so the installer takes the install path
-    # rather than the already-installed early return.
+    # rather than the already-installed early return. The baseline is taken
+    # after that removal, because that is the state the installer must leave
+    # untouched.
     Remove-Item -LiteralPath (Join-Path $root '1.0.0') -Recurse -Force
     $beforeAfterRemoval = Get-TreeSnapshot -Path $root
 
