@@ -17,3 +17,9 @@ Initial public release.
 - Script, style, and other raw-text elements are read as text wherever they
   appear, so ordinary page JavaScript cannot fail a search and their contents
   never reach visible result text.
+- The installer no longer replaces the permissions of a `-InstallRoot` directory
+  that already existed. Only a directory it creates itself receives the
+  restricted access control; a pre-existing root must already carry that exact
+  access control and be recognisably the installer's own, or the install is
+  refused without any change. Unsafe roots fail closed under `-WhatIf` as well.
+  UNC roots are rejected.
