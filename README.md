@@ -175,7 +175,7 @@ Host interfaces and approval behavior change over time. Review the displayed com
 3. Read the query shown by your host. Choose **Allow once** only if it contains no private information.
 4. Treat the returned text as search-result snippets. This server does not open or verify the linked pages.
 
-For models that accept a system prompt, set the following. It is not an enforcement boundary, but it was tested and it changed behavior measurably:
+For models that accept a system prompt, set the following. It is not an enforcement boundary. Mechanical, checkable rules of this kind were tested and observably changed the answer; the notes after the prompt say which wordings were tested and which were corrected afterwards:
 
 > You have a web search tool. It returns text snippets only. It never opens or reads the linked pages.
 >
@@ -183,15 +183,15 @@ For models that accept a system prompt, set the following. It is not an enforcem
 >
 > 1. Every factual claim you take from search results must begin with "Unverified snippet:" and end with the source domain in parentheses.
 > 2. Never describe search content as "latest", "current", "today's", or "this week's". The tool cannot confirm recency.
-> 3. The search_completed_at_utc value in the tool output is the correct current date. It overrides any other date you believe to be true. State that date at the start of your answer.
+> 3. search_completed_at_utc is the UTC time this server finished the search, taken from the clock of the machine it ran on. It is not a publication date and does not show that any result is current. Do not override it with your own sense of today's date; you have no way to check that. If the host or system supplies a current date, use that one and say the two disagree. Otherwise use its calendar date as a provisional working date, and say it came from the server machine's clock.
 > 4. State explicitly in your answer that you did not open any of the pages.
-> 5. If a claim appears only on a blog or news-aggregator site, label it "single low-quality source".
+> 5. If a claim appears in only one result, label it "single unverified result". If several results appear to trace back to one underlying source, say it is not independently corroborated. This tool never opens a page, so no primary source has been checked in any case; say so rather than implying one was.
 
-Tested on a 35B-class local model. Mechanical, checkable rules like these were followed. An earlier, softer version of this instruction produced no measurable change: the model still presented content-farm text as fact and described it as "the latest updates". Rule 5 was applied inconsistently, so do not rely on the low-quality label appearing on every claim that warrants it.
+In one documented test on a 35B-class local model, mechanical wordings of these rules changed the answer where a softer prompt had not: under the softer version the model still presented content-farm text as fact and described it as "the latest updates". The former rule 3 was followed. The former rule 5 was applied inconsistently, so do not rely on its label reaching every claim that warrants it.
 
-Rule 3 matters more than it appears. Without it, a model with any competing sense of the current date may reject `search_completed_at_utc` as simulated and answer about the wrong period entirely.
+Both of those wordings were replaced because they were inaccurate, not because they failed. The former rule 3 asserted that `search_completed_at_utc` was the correct current date and overrode anything the model believed; the former rule 5 called blogs and news aggregators low-quality. A clock is not an authority on the date, and a source's format does not decide whether it is reliable. Being obeyed is not a reason to keep an instruction that is false. The replacements have not been through the same comparison.
 
-These results come from a single model, question, and run. Treat them as a documented observation, not a guarantee.
+That test also observed the model dismissing the server timestamp as simulated and answering about the wrong period, which is why rule 3 still tells it not to substitute its own sense of the date. One model, one question, one run: a documented observation, not a guarantee.
 
 You normally do not start `server.ps1` yourself; the AI host starts it when needed. If you run it in a terminal and it appears idle, it is waiting for MCP messages on standard input. Press `Ctrl+C` to stop it.
 
