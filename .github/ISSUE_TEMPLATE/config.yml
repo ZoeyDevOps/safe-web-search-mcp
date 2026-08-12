@@ -1,0 +1,16 @@
+# A blank issue is the wrong default here. SECURITY.md and CONTRIBUTING.md both
+# tell readers not to post a vulnerability publicly, but the "New issue" page
+# offered a blank form beside the bug report with nothing pointing at the
+# private route. Private vulnerability reporting is enabled, so the reporting
+# path exists; this makes it the one a reporter actually sees.
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security vulnerability privately
+    url: https://github.com/ZoeyDevOps/safe-web-search-mcp/security/advisories/new
+    about: Use GitHub's private reporting. Do not open a public issue for a suspected vulnerability, and do not include exploit details, private data, or secrets.
+  - name: Provider outage, rate limit, bot check, or layout change
+    url: https://github.com/ZoeyDevOps/safe-web-search-mcp/blob/main/README.md#searches-time-out-or-report-a-provider-page-error
+    about: These are expected operational risks rather than defects. Confirm a problem is repeatable, and check existing issues, before reporting a parser problem.
+  - name: Code of conduct concern
+    url: https://github.com/ZoeyDevOps/safe-web-search-mcp/blob/main/CODE_OF_CONDUCT.md
+    about: Read how conduct reports are handled. Conduct reports are separate from the security channel.
