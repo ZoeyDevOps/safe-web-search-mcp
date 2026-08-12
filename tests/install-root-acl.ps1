@@ -76,6 +76,27 @@ function Get-PathSddl {
     return (Get-Acl -LiteralPath $Path).Sddl
 }
 
+function Add-RootAccessRule {
+    # Adds one entry to a directory's DACL and changes nothing else.
+    #
+    # Get-Acl followed by Set-Acl cannot do this here. The installer gives the
+    # root a protected DACL and an explicitly assigned owner, and writing that
+    # descriptor back through Set-Acl asks Windows for SACL access, which
+    # requires SeSecurityPrivilege. A non-elevated account does not hold that
+    # privilege, so the call fails before the installer is ever re-run and the
+    # case reports a privilege error instead of the refusal it exists to check.
+    # Requesting the Access section alone scopes both the read and the write to
+    # the DACL, leaving owner, group, and protection untouched.
+    param(
+        [string]$Path,
+        [Security.AccessControl.FileSystemAccessRule]$Rule
+    )
+    $item = Get-Item -LiteralPath $Path -Force
+    $acl = $item.GetAccessControl([Security.AccessControl.AccessControlSections]::Access)
+    $acl.AddAccessRule($Rule)
+    $item.SetAccessControl($acl)
+}
+
 function Get-TreeSnapshot {
     # Records enough to prove nothing changed: relative paths, file hashes, and
     # the SDDL of every object in the tree.
@@ -142,6 +163,35 @@ function Assert-Refused {
     Assert-TestCondition ($Result.ExitCode -ne 0) "$Label - the installer exited 0; it should have refused. StdOut: $($Result.StdOut)"
 }
 
+function Clear-DenyRules {
+    # Some cases plant a Deny entry to prove the installer refuses one. A Deny
+    # naming Authenticated Users denies this account too, and Deny wins over
+    # Allow, so the tree cannot be deleted while the entry stands. The account
+    # running the suite owns these directories, and an owner keeps WRITE_DAC
+    # whatever the DACL says, so rewriting the DACL still succeeds here.
+    #
+    # The root is processed first: removing the entry there also clears the
+    # inherited copies on everything beneath it, which could not be removed
+    # from the children directly.
+    param([string]$Path)
+    $targets = @(Get-Item -LiteralPath $Path -Force)
+    $targets += @(Get-ChildItem -LiteralPath $Path -Recurse -Force -ErrorAction SilentlyContinue)
+    foreach ($target in $targets) {
+        try {
+            $acl = $target.GetAccessControl([Security.AccessControl.AccessControlSections]::Access)
+            $denied = @($acl.Access | Where-Object {
+                $_.AccessControlType -eq [Security.AccessControl.AccessControlType]::Deny -and -not $_.IsInherited
+            })
+            if ($denied.Count -eq 0) { continue }
+            foreach ($rule in $denied) { $null = $acl.RemoveAccessRuleSpecific($rule) }
+            $target.SetAccessControl($acl)
+        } catch {
+            # Leave it for the retained-directory report rather than masking the
+            # real failure with a cleanup error.
+        }
+    }
+}
+
 function Remove-TestDirectory {
     # Refuses to delete anything that is not the exact GUID-named test directory
     # this suite created.
@@ -153,6 +203,8 @@ function Remove-TestDirectory {
     $item = Get-Item -LiteralPath $canonical -Force
     Assert-TestCondition ($item.PSIsContainer) "Refusing to remove a non-directory test path: $canonical"
     Assert-TestCondition ((($item.Attributes -band [IO.FileAttributes]::ReparsePoint)) -eq 0) "Refusing to remove a reparse point: $canonical"
+    # Only after the guards above have confirmed this is our own test directory.
+    Clear-DenyRules -Path $canonical
     Remove-Item -LiteralPath $canonical -Recurse -Force
 }
 
@@ -303,15 +355,13 @@ Invoke-Case 'An unexpected Allow identity on an otherwise-correct root is refuse
 
     # Add Authenticated Users. The installer must refuse this root rather than
     # silently repairing the ACL back to its expected shape.
-    $acl = Get-Acl -LiteralPath $root
     $rule = New-Object Security.AccessControl.FileSystemAccessRule(
         (New-Object Security.Principal.SecurityIdentifier('S-1-5-11')),
         [Security.AccessControl.FileSystemRights]::ReadAndExecute,
         ([Security.AccessControl.InheritanceFlags]::ContainerInherit -bor [Security.AccessControl.InheritanceFlags]::ObjectInherit),
         [Security.AccessControl.PropagationFlags]::None,
         [Security.AccessControl.AccessControlType]::Allow)
-    $acl.AddAccessRule($rule)
-    Set-Acl -LiteralPath $root -AclObject $acl
+    Add-RootAccessRule -Path $root -Rule $rule
     $before = Get-TreeSnapshot -Path $root
 
     # Remove the version directory so the installer takes the install path
@@ -332,15 +382,13 @@ Invoke-Case 'A Deny entry on an otherwise-correct root is refused' {
     Assert-TestCondition ($first.ExitCode -eq 0) "Setup install failed. StdErr: $($first.StdErr)"
     Remove-Item -LiteralPath (Join-Path $root '1.0.0') -Recurse -Force
 
-    $acl = Get-Acl -LiteralPath $root
     $rule = New-Object Security.AccessControl.FileSystemAccessRule(
         (New-Object Security.Principal.SecurityIdentifier('S-1-5-11')),
         [Security.AccessControl.FileSystemRights]::Write,
         ([Security.AccessControl.InheritanceFlags]::ContainerInherit -bor [Security.AccessControl.InheritanceFlags]::ObjectInherit),
         [Security.AccessControl.PropagationFlags]::None,
         [Security.AccessControl.AccessControlType]::Deny)
-    $acl.AddAccessRule($rule)
-    Set-Acl -LiteralPath $root -AclObject $acl
+    Add-RootAccessRule -Path $root -Rule $rule
     $before = Get-TreeSnapshot -Path $root
 
     $result = Invoke-Installer -InstallRoot $root
