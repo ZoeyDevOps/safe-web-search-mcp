@@ -121,7 +121,7 @@ powershell.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File 
 
 By default, the installer creates a versioned copy under `%LOCALAPPDATA%\Programs\SafeWebSearchMCP\1.0.0`. It does not edit a host configuration, change `PATH`, download anything, or update itself. Its result includes `ServerPath`, `SHA256`, and whether that exact version was already installed. Copy the reported `ServerPath` into the host template in the next step.
 
-You can choose another absolute destination with `-InstallRoot`. You may also skip the installer and point a host directly at `src/server.ps1`; in that case, the source folder must remain in the same location.
+You can choose another absolute destination with `-InstallRoot`, but it must be either a directory that does not exist yet or one this installer created earlier. The installer applies its restricted permissions only to a directory it creates itself; it never repairs, re-owns, or replaces the permissions of a directory that was already there. Point it at an existing folder of your own and it refuses and changes nothing, rather than rewriting that folder's access control. UNC paths are not supported. You may also skip the installer and point a host directly at `src/server.ps1`; in that case, the source folder must remain in the same location.
 
 ### 2. Prepare a host configuration
 

@@ -93,6 +93,14 @@ release, because the facts it rests on can change without notice.
       installer dry-run path has no automated coverage anywhere. A release
       validated only by a green CI run has never had its installer exercised at
       all.
+- [ ] Run `tests\install-root-acl.ps1` on a non-elevated Windows workstation.
+      It proves the installer refuses a pre-existing `-InstallRoot` instead of
+      rewriting its permissions, and that a refused root is left byte-for-byte
+      and ACL-for-ACL unchanged. Like the item above it cannot run in CI, where
+      the runner is elevated and the installer refuses to start. A custom root
+      must be a directory that does not exist yet or one this installer created;
+      the installer never repairs permissions on an arbitrary existing
+      directory, and unsafe roots fail closed.
 - [ ] Run a low-volume live smoke test, and stop immediately if the provider
       rejects or throttles access.
 
