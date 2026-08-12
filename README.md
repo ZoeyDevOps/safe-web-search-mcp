@@ -38,7 +38,7 @@ From the extracted project folder, confirm the server matches the hash recorded 
 
 The manifest records that one hash and nothing else, so this check says nothing about `Install for LM Studio.cmd`, [`scripts/setup-lm-studio.ps1`](scripts/setup-lm-studio.ps1), or [`scripts/install.ps1`](scripts/install.ps1) - the three files that actually run when you double-click. Read them before the first run, as you should read [`src/server.ps1`](src/server.ps1) before enabling it.
 
-Only after it prints `True`, clear the download tag: right-click the downloaded archive (or the extracted `Install for LM Studio.cmd`), choose **Properties**, tick **Unblock**, and apply. At the SmartScreen prompt itself, the equivalent is **More info**, then **Run anyway**.
+Only after it prints `True`, clear the download tag on the file you are about to run: right-click the extracted `Install for LM Studio.cmd`, choose **Properties**, tick **Unblock**, and apply. Unblocking the ZIP after extracting it does not clear the tag on the files already extracted from it; unblocking the archive only helps if you do it before extracting. At the SmartScreen prompt itself, the equivalent is **More info**, then **Run anyway**.
 
 If you cannot run that check, or would rather not, do not run the installer.
 
@@ -78,6 +78,8 @@ The process still runs as your Windows user and can make the network request des
 ## Privacy and provider limitations
 
 Every search sends the full query, connection metadata, and the tool's User-Agent outside your computer. The provider sees the connecting IP address, which may be your public IP or a proxy's address. A configured Windows proxy also participates in the connection and may inspect traffic if its certificate authority is trusted. Never put passwords, tokens, private names, unpublished work, or other sensitive information in a query.
+
+Your MCP host is a second, separate path off the device, and this server has no say over it. If the host or its model runs in the cloud, then your prompts, the queries it decides to send, everything this tool returns, and the surrounding conversation may be transmitted, logged, and retained under that host's own policy, not this project's. Running a local `stdio` server does not make the host or the model local, offline, or private; it only means this particular tool runs on your machine. A local model in LM Studio and a cloud-backed assistant behave very differently here even though the server is identical. Check the privacy terms of whichever host you install this into.
 
 This project uses DuckDuckGo's unversioned HTML results page, not a supported search API, and is not affiliated with DuckDuckGo. A layout change, rate limit, bot check, TLS-fingerprint block of automated clients, outage, or provider-policy change can make searches fail. Use it for occasional personal searches, do not automate high-volume use, and stop if the provider blocks it. Strict SafeSearch reduces risk but cannot guarantee that every title, URL, or snippet is suitable or accurate. Read [PROVIDER-NOTICE.md](PROVIDER-NOTICE.md) before redistribution.
 
