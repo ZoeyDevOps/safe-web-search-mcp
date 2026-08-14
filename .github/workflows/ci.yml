@@ -103,13 +103,16 @@ jobs:
         shell: powershell
         run: |
           $ErrorActionPreference = 'Stop'
-          # -SkipInstallerDryRun omits tests\setup-lm-studio-offline.ps1, the one
-          # check that previews an installation. An ephemeral runner cannot
-          # meaningfully validate a local installer dry-run: this machine is
-          # discarded when the job ends, so a preview here says nothing about
-          # installing on a real workstation. Everything else still runs,
-          # including the full offline protocol suite, the manifest hash check,
-          # and the static parse of install.ps1 itself. Run this script with no
-          # switches on a normal non-elevated workstation to cover the
-          # installer path before tagging a release.
-          & .\scripts\validate-package.ps1 -SkipInstallerDryRun
+          # -SkipInstallerChecks omits the two suites that drive install.ps1:
+          # tests\setup-lm-studio-offline.ps1 and tests\install-root-acl.ps1.
+          # Neither can run here regardless of preference - the step above
+          # asserts this runner is elevated, and the installer refuses to start
+          # elevated by design. Even if it did run, this machine is discarded
+          # when the job ends, so it would say nothing about installing on a
+          # real workstation. Everything else still runs, including the full
+          # offline protocol suite, the manifest hash check, and the static
+          # parse of install.ps1 itself. Run this script with no switches on a
+          # normal non-elevated workstation to cover the installer path before
+          # tagging a release; that run is the only installer coverage that
+          # exists anywhere.
+          & .\scripts\validate-package.ps1 -SkipInstallerChecks

@@ -31,10 +31,20 @@ Suggested description:
 
 > A small Windows MCP server that gives compatible AI apps one web-search tool.
 
-Suggested topics:
+Topics, which are also the set this repository carries:
 
-`mcp`, `model-context-protocol`, `powershell`, `windows`, `lm-studio`,
-`web-search`
+`mcp`, `model-context-protocol`, `mcp-server`, `mcp-tools`, `powershell`,
+`windows`, `web-search`, `lm-studio`, `cursor`
+
+Two rules kept that list shorter than it could be. Do not file the project
+under the provider's name. Topics are metadata GitHub attaches to the project
+itself, and the trademark item in [RELEASE-CHECKLIST.md](RELEASE-CHECKLIST.md)
+asks that nothing present this project as the provider's own. Naming the
+provider in prose that describes what the software does is a different act from
+tagging the project with their brand, which is why the README names them freely
+and this list does not. Do not add a topic for a host the project ships no
+template and no tested path for, however plausible the integration sounds; a
+topic is a claim that someone searching for that host should find this.
 
 ## Recommended repository settings
 

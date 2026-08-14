@@ -27,13 +27,7 @@ Run the complete package validation before submitting a pull request:
 powershell.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\validate-package.ps1
 ```
 
-That validation does not exercise the installer's access-control behavior. If you change `scripts\install.ps1`, also run the suite that guards it:
-
-```powershell
-powershell.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\tests\install-root-acl.ps1
-```
-
-It proves the installer refuses a pre-existing `-InstallRoot` rather than rewriting that directory's permissions, and that a refused root is left unchanged. Nothing else runs it. CI cannot: the hosted runner is elevated, the installer refuses to start elevated, and so this behavior has no automated coverage anywhere. A non-administrator terminal is required for the same reason.
+Run it from a normal, non-administrator terminal and pass no switches. Two of the suites it invokes drive `scripts\install.ps1` — a setup preview and an install-root access-control suite that proves the installer refuses a pre-existing `-InstallRoot` rather than rewriting that directory's permissions. Both need a non-elevated session, because the installer refuses to start with administrator rights, so the validation refuses to start elevated rather than skipping them quietly. CI cannot cover either one: its runner is elevated and passes `-SkipInstallerChecks`. Your local run is the only place the installer is exercised at all, which matters most when you are the one changing it.
 
 Routine tests must not send live queries to DuckDuckGo. Use synthetic fixtures and bounded inputs. A manual provider check should be rare, explicit, and never contain private data.
 

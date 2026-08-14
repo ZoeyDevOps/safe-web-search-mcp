@@ -89,18 +89,21 @@ release, because the facts it rests on can change without notice.
       produces the expected local `lmstudio://add_mcp` confirmation link.
 - [ ] Run `scripts\validate-package.ps1` with **no switches** on a non-elevated
       Windows workstation. This is mandatory, not optional. CI always passes
-      `-SkipInstallerDryRun`, and the hosted runner is elevated, so the
-      installer dry-run path has no automated coverage anywhere. A release
+      `-SkipInstallerChecks`, and the hosted runner is elevated, so everything
+      that drives the installer has no automated coverage anywhere. A release
       validated only by a green CI run has never had its installer exercised at
-      all.
-- [ ] Run `tests\install-root-acl.ps1` on a non-elevated Windows workstation.
+      all. That one command is the whole installer gate: with no switches it
+      runs the LM Studio setup preview and the install-root ACL suite as part of
+      the validation, so neither has to be remembered separately. It refuses to
+      start from an elevated terminal rather than skipping them quietly.
+- [ ] Confirm the ACL suite actually ran in that output rather than assuming it.
       It proves the installer refuses a pre-existing `-InstallRoot` instead of
       rewriting its permissions, and that a refused root is left byte-for-byte
-      and ACL-for-ACL unchanged. Like the item above it cannot run in CI, where
-      the runner is elevated and the installer refuses to start. A custom root
-      must be a directory that does not exist yet or one this installer created;
-      the installer never repairs permissions on an arbitrary existing
-      directory, and unsafe roots fail closed.
+      and ACL-for-ACL unchanged. A custom root must be a directory that does not
+      exist yet or one this installer created; the installer never repairs
+      permissions on an arbitrary existing directory, and unsafe roots fail
+      closed. Seeing `SKIP: installer checks omitted` means the switch was
+      passed and this gate is still open.
 - [ ] Run a low-volume live smoke test, and stop immediately if the provider
       rejects or throttles access.
 
