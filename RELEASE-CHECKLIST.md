@@ -120,6 +120,14 @@ release, because the facts it rests on can change without notice.
       commit. A tag made while the heading still reads `## Unreleased` violates
       the version-consistency item above, because the tagged tree does not name
       the version it claims.
+- [ ] In that same pre-tag commit, correct every other statement that is written
+      for a repository with no release. The changelog heading is not the only
+      place the tree describes its own release state, and a tag is the moment
+      all of them stop being true together. `README.md` opens with a **Release
+      status** paragraph asserting that no tagged release has been published and
+      that `1.0.0` is only what the server reports about itself; both halves are
+      false in the tree the tag points at. `SECURITY.md` states its
+      supported-version rule conditionally and needs no edit here.
 - [ ] Delete and recreate any tag that was created against an `## Unreleased`
       heading before that tag is pushed. Such a tag records a validated
       pre-publication state, not a release; replace it with a tag on the dated
@@ -131,6 +139,17 @@ release, because the facts it rests on can change without notice.
       matches the reviewed executable, arguments, timeout, and installed path.
 - [ ] Publish a SHA-256 checksum or a signed release, and verify it after
       download on a clean Windows account.
+- [ ] Do not publish a checksum for the **Source code (zip)** or **Source code
+      (tar.gz)** links GitHub generates on the Releases tab. GitHub does not
+      guarantee those archives are byte-stable, and recommends uploading an
+      archive of your own where consistent checksums matter; a change to its
+      archive tooling has already invalidated published hashes across the
+      ecosystem once. A checksum that can turn false while nobody touches the
+      release is worse than none, because it makes a routine tooling change look
+      like tampering to the one user careful enough to check. Either hash an
+      archive attached to the release, or publish no archive checksum and let
+      the README's in-tree manifest check stand as the only verification
+      offered.
 - [ ] If a separate installation archive is attached, run the README's
       verification command against that archive's extracted layout and confirm
       it still works, or document a separate command for it in the same README
