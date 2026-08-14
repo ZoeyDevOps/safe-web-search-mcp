@@ -112,6 +112,28 @@ can give project-specific guidance.
 Do not evade access controls, blocks, or rate limits. Stop using the adapter if
 the provider rejects access.
 
+### Review record
+
+The release checklist requires this position to be re-examined before every
+release. That is only meaningful against a fixed point, because the thing being
+checked is whether the facts moved.
+
+- Endpoint in use: `https://html.duckduckgo.com/html/`, retrieved by HTTPS GET
+  with strict SafeSearch (`kp=1`), no redirects, and no cookies. No documented
+  search API is used. Package validation asserts that this endpoint appears
+  exactly once in the server source, so a change of destination cannot pass
+  unnoticed.
+- Last reading of the live pages linked above: not recorded. The summary in this
+  section was written from a reading of them, but its date was never captured,
+  so the summary's age cannot be established from this file.
+
+Treat that second line as unfinished business rather than a formality. A summary
+of another party's terms with no date attached cannot be told apart from a
+current one, which is the failure it invites: quoting it back years later as
+though it still described the live pages. Record the date those pages were
+actually read, and re-read them at each release instead of carrying the date
+forward.
+
 ## License boundary
 
 The MIT License in this repository applies only to the original source code and
