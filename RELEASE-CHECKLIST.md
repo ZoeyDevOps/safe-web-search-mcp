@@ -13,7 +13,11 @@ release, because the facts it rests on can change without notice.
 
 - [ ] Read the current provider Terms of Service, Acceptable Use Policy, and
       partnership or developer guidance from their official pages.
-- [ ] Record the review date and the exact provider endpoint or API being used.
+- [ ] Record the review date and the exact provider endpoint or API being used,
+      in the review record under **Provider terms** in
+      [PROVIDER-NOTICE.md](PROVIDER-NOTICE.md). The endpoint is recorded there
+      already; the date of the last reading is not, and no release should be
+      tagged while it says so. Write the date the pages were actually read.
 - [ ] Confirm `PROVIDER-NOTICE.md` still describes the position accurately: no
       written authorization sought or obtained, published as an accepted
       documented risk, on reasoning specific to the author's jurisdiction and
