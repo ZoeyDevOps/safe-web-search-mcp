@@ -4,14 +4,18 @@
 [CmdletBinding()]
 param(
     [switch]$SkipOfflineTests,
-    # Skips tests\setup-lm-studio-offline.ps1, the only check here that previews
-    # an installation. An ephemeral CI runner cannot meaningfully validate a
-    # local installer dry-run: the machine is discarded when the job ends, so a
-    # preview there says nothing about installing on a real workstation.
-    # Everything else, including the full offline protocol suite, still runs.
-    # Leave this switch off on a workstation, where the dry-run does mean
-    # something.
-    [switch]$SkipInstallerDryRun
+    # Skips both checks that drive scripts\install.ps1: the setup preview in
+    # tests\setup-lm-studio-offline.ps1 and the access-control suite in
+    # tests\install-root-acl.ps1. They are one switch because they share one
+    # precondition - the installer refuses to run elevated, so neither can be
+    # exercised from an elevated session - and one reason to skip. An ephemeral
+    # CI runner is elevated and is discarded when the job ends, so neither check
+    # says anything there about installing on a real workstation. Everything
+    # else, including the full offline protocol suite and the manifest hash
+    # check, still runs. Leave this switch off on a normal, non-elevated
+    # workstation: that is the only place these two run at all, in CI or
+    # anywhere else.
+    [switch]$SkipInstallerChecks
 )
 
 $ErrorActionPreference = 'Stop'
@@ -34,12 +38,25 @@ if ($PSVersionTable.PSEdition -cne 'Desktop' -or
     throw 'Package validation must run in Windows PowerShell 5.1 (powershell.exe), not PowerShell 7 (pwsh.exe).'
 }
 
+# Fail on elevation now rather than after the offline suite has run. Both
+# installer checks call scripts\install.ps1, which refuses an elevated session
+# by design, so an elevated run of this script is already decided - reporting it
+# in a second, with the way out, beats reporting it in minutes.
+if (-not $SkipOfflineTests -and -not $SkipInstallerChecks) {
+    $validationIdentity = [Security.Principal.WindowsIdentity]::GetCurrent()
+    $validationPrincipal = New-Object Security.Principal.WindowsPrincipal($validationIdentity)
+    if ($validationPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+        throw 'This session is elevated, so the installer checks cannot run: scripts\install.ps1 refuses to start with administrator rights. Re-run from a normal, non-administrator terminal to cover the installer, or pass -SkipInstallerChecks to run everything else and leave it uncovered.'
+    }
+}
+
 $scriptDirectory = Split-Path -Parent $MyInvocation.MyCommand.Path
 $packageRoot = (Resolve-Path -LiteralPath (Join-Path $scriptDirectory '..')).Path
 $manifestPath = Join-Path $packageRoot 'release-manifest.json'
 $serverPath = Join-Path $packageRoot 'src\server.ps1'
 $testPath = Join-Path $packageRoot 'tests\run-offline.ps1'
 $setupTestPath = Join-Path $packageRoot 'tests\setup-lm-studio-offline.ps1'
+$aclTestPath = Join-Path $packageRoot 'tests\install-root-acl.ps1'
 $installerPath = Join-Path $packageRoot 'scripts\install.ps1'
 $lmStudioSetupPath = Join-Path $packageRoot 'scripts\setup-lm-studio.ps1'
 $lmStudioLauncherPath = Join-Path $packageRoot 'Install for LM Studio.cmd'
@@ -49,6 +66,7 @@ Assert-Valid (Test-Path -LiteralPath $manifestPath -PathType Leaf) 'release-mani
 Assert-Valid (Test-Path -LiteralPath $serverPath -PathType Leaf) 'src\server.ps1 is missing.'
 Assert-Valid (Test-Path -LiteralPath $testPath -PathType Leaf) 'tests\run-offline.ps1 is missing.'
 Assert-Valid (Test-Path -LiteralPath $setupTestPath -PathType Leaf) 'tests\setup-lm-studio-offline.ps1 is missing.'
+Assert-Valid (Test-Path -LiteralPath $aclTestPath -PathType Leaf) 'tests\install-root-acl.ps1 is missing.'
 Assert-Valid (Test-Path -LiteralPath $installerPath -PathType Leaf) 'scripts\install.ps1 is missing.'
 Assert-Valid (Test-Path -LiteralPath $lmStudioSetupPath -PathType Leaf) 'scripts\setup-lm-studio.ps1 is missing.'
 Assert-Valid (Test-Path -LiteralPath $lmStudioLauncherPath -PathType Leaf) 'Install for LM Studio.cmd is missing.'
@@ -154,10 +172,11 @@ foreach ($item in $integrityItems) {
 
 if (-not $SkipOfflineTests) {
     & $testPath -ServerPath $serverPath
-    if ($SkipInstallerDryRun) {
-        Write-Output 'SKIP: LM Studio setup preview omitted; an installer dry-run is only meaningful on a real workstation.'
+    if ($SkipInstallerChecks) {
+        Write-Output 'SKIP: installer checks omitted. The LM Studio setup preview and the install-root ACL suite both require a non-elevated workstation, and neither is covered anywhere else.'
     } else {
         & $setupTestPath
+        & $aclTestPath
     }
 }
 
