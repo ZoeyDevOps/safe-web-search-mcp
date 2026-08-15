@@ -85,9 +85,22 @@ release, because the facts it rests on can change without notice.
       cookie, and process-local rate limits.
 - [ ] Verify that standard output contains JSON-RPC messages only and that logs
       go to standard error without exposing queries or private data.
-- [ ] Test initialization, `tools/list`, and `tools/call` in each documented MCP
+- [ ] Test initialization, `tools/list`, and `tools/call` in the verified MCP
       host with per-call approval enabled and a process timeout of at least 15
-      seconds.
+      seconds. LM Studio is that host, and its template is the only one that
+      carries a timeout setting. Do not add a timeout key to the others to
+      satisfy this line: a field the host may ignore would claim a control the
+      project does not have.
+- [ ] Confirm the remaining templates still name the reviewed `powershell.exe`
+      path, the exact argument list, and the `REPLACE_WITH_ABSOLUTE_PATH`
+      placeholder, in whichever shape their host uses - `mcpServers` for Claude
+      Desktop and Cursor, `servers` with `"type": "stdio"` for VS Code. They ship
+      as conventional local-stdio formats and are not host-tested. Neither this
+      list nor the README may imply otherwise.
+- [ ] Before moving any host into the verified set, run the full test above
+      against it: all three calls, per-call approval, and a timeout of at least
+      15 seconds. Shipping a template is not verifying a host, and the verified
+      set grows by testing only, never by assumption.
 - [ ] Run the LM Studio setup preview test and confirm that it performs no
       writes, makes no network request, embeds the verified versioned path, and
       produces the expected local `lmstudio://add_mcp` confirmation link.
