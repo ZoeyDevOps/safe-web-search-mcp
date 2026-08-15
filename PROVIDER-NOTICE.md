@@ -32,6 +32,22 @@ API instead, which is a different thing and a permitted one. Reading a broad
 pattern into a narrow observation would be the same error this project's own
 `usage_notice` warns users about.
 
+The review recorded below found a further reason the second point cannot carry
+the weight its wording invites. At least one comparable MIT-licensed server,
+checked in its source rather than in its description, does query this same HTML
+results page, so the observation is not empty. That same source also records the
+endpoint returning an empty HTTP 202, or a 403, to clients whose TLS fingerprint
+it declines, and it retries such refusals through a library that impersonates a
+browser's TLS handshake. Continued availability and continued function are
+therefore two different facts about a project, and only the first is what the
+second point claims. Function sustained by presenting a client the provider
+would otherwise refuse evidences a bypass that worked, not a provider's
+tolerance, so it cannot be borrowed as support here. The second point is
+therefore weaker than when it was written, and weaker than the paragraph above
+already allowed it to be. It is left standing because the decision was in fact
+made partly on it, and striking it now would misrepresent what that decision
+rested on - not because it still carries what it was offered to carry.
+
 Both points are the author's reasoning and nothing more. Neither is a statement
 by, or on behalf of, Duck Duck Go, Inc., and neither may be read as approval,
 authorization, compliance, or endorsement. Do not describe this adapter as
@@ -61,6 +77,27 @@ well-behaved, and why the following are requirements rather than suggestions:
 
 Weakening those limits does not just increase load; it removes the main reason
 the position above is tenable at all.
+
+All four bind. What differs between them is only whether code can enforce them,
+and it is worth being exact about which can. The third is implemented rather than
+undertaken: the server identifies itself as
+`SafeWebSearchMCP/1.0.0 (+local MCP server)` rather than presenting itself as a
+browser, and removing that string fails the package validation. An HTTP 202, 403,
+or 429 ends the request, reported as `Search provider refused or deferred the
+request` and recording that `No bypass or automatic retry was attempted`, and a
+blank or unrecognized page fails closed instead of being guessed at. The honest
+identifier is a statement of how this client behaves, never an explanation of why
+it is served. On the evidence set out in the first section, refusal here has been
+observed to turn at least in part on the TLS fingerprint - which this project
+neither selects nor alters - with plain 403s and challenge pages alongside it. An
+honest User-Agent buys no exemption from any of that.
+
+The first is enforced in code as well. The fourth is only partly addressed: the
+server surfaces a refusal and tells the caller not to retry immediately, but it
+has no cooling-off breaker that would stop it being asked again, and such a
+breaker could be built, so whether use actually stops is left to the operator.
+The second is out of reach of code entirely, describing as it does how a person
+chooses to use the tool. Being unenforceable makes neither of those two optional.
 
 An MCP search server could reasonably do more than this one does. Fetching and
 parsing the pages behind the results it returns is well within the design space,
@@ -96,7 +133,7 @@ including:
 - [DuckDuckGo Acceptable Use Policy](https://duckduckgo.com/acceptable-use)
 - [DuckDuckGo partnership guidance](https://duckduckgo.com/duckduckgo-help-pages/company/partnerships)
 
-At the time this notice was prepared, the Acceptable Use Policy prohibited
+At the time of the reading recorded below, the Acceptable Use Policy prohibited
 framing, inline linking, or similarly displaying any portion of the service
 within another service, and prohibited selling or reselling any portion of the
 service. The partnership guidance also asked developers not to put DuckDuckGo
@@ -123,16 +160,59 @@ checked is whether the facts moved.
   search API is used. Package validation asserts that this endpoint appears
   exactly once in the server source, so a change of destination cannot pass
   unnoticed.
-- Last reading of the live pages linked above: not recorded. The summary in this
-  section was written from a reading of them, but its date was never captured,
-  so the summary's age cannot be established from this file.
+- Last reading of the live pages linked above: 2026-08-15, for the 1.0.0
+  release. The Terms of Service displayed `Last updated: 01-07-2025`; the
+  Acceptable Use Policy and the partnership guidance displayed no date at all.
+  Those strings are recorded exactly as shown, unreformatted and uninterpreted,
+  so that a later reviewer can compare them against the live pages character for
+  character rather than against someone's reading of them.
 
-Treat that second line as unfinished business rather than a formality. A summary
-of another party's terms with no date attached cannot be told apart from a
-current one, which is the failure it invites: quoting it back years later as
-though it still described the live pages. Record the date those pages were
-actually read, and re-read them at each release instead of carrying the date
-forward.
+What that reading found, recorded so a later reviewer can tell whether the facts
+moved rather than having to guess:
+
+- Both Acceptable Use Policy clauses this notice rests on were still present and
+  still in these words: users agree not to "Frame, inline link, or similarly
+  display any portion of the services within another service", and not to "Sell
+  or resell any portion of the services".
+- The partnership guidance still asked developers not to include DuckDuckGo
+  search results "in any sort of frame", and still excepted browser integration.
+- Neither document addressed automated access, scraping, crawling, or request
+  volume in those terms. Record that as an observation about what the pages said
+  on the date above, and as nothing else. It is not a finding in this project's
+  favour and must not be cited as one: an absent prohibition is not a permission,
+  it narrows none of the clauses that are present, and it supplies none of the
+  authorization recorded above as missing. The reason the first section gives for
+  not reading silence as consent - that the provider enforces here by refusing
+  traffic, not by suing - applies with equal force to silence in the terms
+  themselves: enforcement that is technical rather than legal is not the kind
+  that an absent written prohibition tells you much about.
+- Two further Acceptable Use Policy clauses bear directly on the restraint
+  described earlier in this notice: users agree not to "Interfere with or disrupt
+  the integrity or performance of the services", and not to "Attempt to access,
+  interfere with, or connect to the services and/or any computer without
+  authorization". The low request limits and the stop-if-blocked instruction are
+  the practical answer to those two. That is a further reason they are
+  requirements rather than tuning knobs.
+
+The second reason given in the first section - that comparable MIT-licensed
+servers parse the same results page and remain publicly available - was re-tested
+on the same date, being the limb most exposed to change. It moved, and what its
+moving means for the reasoning is set out in that first section rather than
+repeated here. Recorded here is only how it was checked and what that
+established: one comparable project, read in its source rather than in its
+description, queries this same endpoint, and that same source documents both the
+refusals and the impersonating transport described there. One project verified in
+source is the whole of it - not a population, and not a survey. No legal action
+against projects of this kind was found, which on the enforcement pattern
+described above adds nothing either way.
+
+Re-read those pages and re-test both limbs at each release instead of carrying
+this date forward. A summary of another party's terms with no date attached
+cannot be told apart from a current one, which is the failure it invites: quoting
+it back years later as though it still described the live pages. Where a fact has
+moved, reopen the position that rested on it rather than editing this summary to
+match. A record that only ever absorbs new facts has stopped being a check on
+them.
 
 ## License boundary
 
