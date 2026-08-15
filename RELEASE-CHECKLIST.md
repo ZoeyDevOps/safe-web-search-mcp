@@ -96,7 +96,11 @@ release, because the facts it rests on can change without notice.
       placeholder, in whichever shape their host uses - `mcpServers` for Claude
       Desktop and Cursor, `servers` with `"type": "stdio"` for VS Code. They ship
       as conventional local-stdio formats and are not host-tested. Neither this
-      list nor the README may imply otherwise.
+      list nor the README may imply otherwise. Package validation asserts all of
+      that, including that no template but LM Studio's carries a timeout, so this
+      item is discharged by running the validator rather than by reading four
+      files. Not being host-tested is the reason to check their contents by
+      machine, not a reason to leave them unchecked.
 - [ ] Before moving any host into the verified set, run the full test above
       against it: all three calls, per-call approval, and a timeout of at least
       15 seconds. Shipping a template is not verifying a host, and the verified
