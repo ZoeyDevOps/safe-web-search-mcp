@@ -158,6 +158,60 @@ foreach ($jsonFile in $jsonFiles) {
     }
 }
 
+# Only LM Studio is a verified host. The other templates ship as conventional
+# local-stdio formats that nothing exercises, so their contents are asserted here
+# instead of being left to inspection: an edit that quietly changed an executable
+# path, an argument, or the placeholder in an untested template would otherwise
+# reach users through the one category no test covers.
+$reviewedShellPath = 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe'
+$reviewedArguments = @('-NoLogo', '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File')
+$templateFiles = @(Get-ChildItem -LiteralPath (Join-Path $packageRoot 'configs') -File -Filter '*.template.json')
+Assert-Valid ($templateFiles.Count -eq 4) "Expected four host configuration templates in configs; found $($templateFiles.Count)."
+
+foreach ($templateFile in $templateFiles) {
+    $templateName = $templateFile.Name
+    $template = [IO.File]::ReadAllText($templateFile.FullName) | ConvertFrom-Json
+
+    # VS Code declares servers with an explicit stdio type; the rest use the
+    # conventional mcpServers object.
+    $isVsCode = $templateName -ceq 'vscode.template.json'
+    $containerName = if ($isVsCode) { 'servers' } else { 'mcpServers' }
+    Assert-Valid (@($template.PSObject.Properties.Name) -ccontains $containerName) "$templateName does not declare a '$containerName' object."
+    $serverNames = @($template.$containerName.PSObject.Properties.Name)
+    Assert-Valid ($serverNames.Count -eq 1 -and $serverNames[0] -ceq 'safe-web-search') "$templateName must declare exactly one server named safe-web-search."
+    $entry = $template.$containerName.'safe-web-search'
+    $entryFields = @($entry.PSObject.Properties.Name)
+
+    Assert-Valid ($entryFields -ccontains 'command') "$templateName declares no command."
+    Assert-Valid ([string]$entry.command -ceq $reviewedShellPath) "$templateName does not call the reviewed Windows PowerShell 5.1 executable."
+
+    if ($isVsCode) {
+        Assert-Valid ($entryFields -ccontains 'type') "$templateName must declare a transport type."
+        Assert-Valid ([string]$entry.type -ceq 'stdio') "$templateName must declare the stdio transport."
+    }
+
+    Assert-Valid ($entryFields -ccontains 'args') "$templateName declares no argument list."
+    $templateArguments = @($entry.args)
+    Assert-Valid ($templateArguments.Count -eq ($reviewedArguments.Count + 1)) "$templateName must pass the $($reviewedArguments.Count) reviewed arguments and one server path; found $($templateArguments.Count)."
+    for ($argumentIndex = 0; $argumentIndex -lt $reviewedArguments.Count; $argumentIndex++) {
+        Assert-Valid ([string]$templateArguments[$argumentIndex] -ceq $reviewedArguments[$argumentIndex]) "$templateName argument $argumentIndex must be $($reviewedArguments[$argumentIndex])."
+    }
+    $templateServerPath = [string]$templateArguments[$reviewedArguments.Count]
+    Assert-Valid ($templateServerPath -cmatch 'REPLACE_WITH_ABSOLUTE_PATH') "$templateName must keep the REPLACE_WITH_ABSOLUTE_PATH placeholder so no local path ships."
+    Assert-Valid ($templateServerPath -cmatch 'src/server\.ps1\z') "$templateName must point at src/server.ps1."
+
+    # Only the verified host's format carries a timeout, and the checklist
+    # forbids inventing one for hosts that may ignore it, so absence is asserted
+    # as deliberately as presence.
+    $hasTimeout = $entryFields -ccontains 'timeout'
+    if ($templateName -ceq 'lm-studio.template.json') {
+        Assert-Valid $hasTimeout 'lm-studio.template.json must set a timeout.'
+        Assert-Valid ([int]$entry.timeout -ge 15000) 'lm-studio.template.json must allow the host at least 15 seconds.'
+    } else {
+        Assert-Valid (-not $hasTimeout) "$templateName must not set a timeout; only the verified host's format carries one."
+    }
+}
+
 $integrityItems = @(
     Get-Item -LiteralPath $packageRoot
     Get-ChildItem -LiteralPath $packageRoot -Recurse -Force
