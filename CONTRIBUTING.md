@@ -48,6 +48,6 @@ A proposal that expands these boundaries should begin as a design issue and expl
 
 ## Pull requests
 
-Keep changes focused and explain their user-visible effect. Update tests and documentation when behavior changes. Add a short entry under `Unreleased` in `CHANGELOG.md` for a user-visible fix or feature.
+Keep changes focused and explain their user-visible effect. Update tests and documentation when behavior changes. Add a short entry under `## Unreleased` in `CHANGELOG.md` for a user-visible fix or feature, creating that heading if the newest one is already a released version. It will not always be there: the release checklist turns `## Unreleased` into the dated version heading before a tag, so the file has no unreleased section until the next change adds one.
 
 By contributing, you agree that your contribution is provided under the repository's license and that you have the right to submit it.
