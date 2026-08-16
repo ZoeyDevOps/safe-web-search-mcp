@@ -12,7 +12,7 @@ Here, "safe" means the tool's capabilities and resource use are deliberately bou
 
 ## Get the project
 
-**Release status:** no tagged release has been published. The Git command and the Download ZIP instructions below obtain a snapshot of the `main` branch. The `1.0.0` that appears in this file, in the manifest, and in the installation-folder name is the version the server reports about itself; it is not a published release. Under [SECURITY.md](SECURITY.md), the project is pre-release and no stable version is currently supported.
+**Release status:** `1.0.0` is tagged and published. The Git command and the Download ZIP instructions below obtain a snapshot of the `main` branch, which can be ahead of that tag; for the released tree, use the `v1.0.0` tag or its release page. Under [SECURITY.md](SECURITY.md), the latest tagged release is the one intended to receive security fixes.
 
 With Git:
 

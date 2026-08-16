@@ -160,12 +160,17 @@ checked is whether the facts moved.
   search API is used. Package validation asserts that this endpoint appears
   exactly once in the server source, so a change of destination cannot pass
   unnoticed.
-- Last reading of the live pages linked above: 2026-08-15, for the 1.0.0
-  release. The Terms of Service displayed `Last updated: 01-07-2025`; the
-  Acceptable Use Policy and the partnership guidance displayed no date at all.
-  Those strings are recorded exactly as shown, unreformatted and uninterpreted,
-  so that a later reviewer can compare them against the live pages character for
-  character rather than against someone's reading of them.
+- Last reading of the live pages linked above: 2026-08-16, re-read for this
+  release rather than carried over from the previous reading on 2026-08-15. The
+  Terms of Service displayed `Last updated: 01-07-2025` on both readings; the
+  Acceptable Use Policy and the partnership guidance displayed no date at all on
+  either. Those strings are recorded as they appeared, unreformatted and
+  uninterpreted, so that a later reviewer has something specific to hold the live
+  pages against. Both readings were made through a tool that fetches each page
+  and summarises it, not by reading the pages directly, and the two passes did
+  not agree on how many obligations the Terms of Service sets out. Treat the
+  quotations here as faithful to that rendering rather than as a transcription,
+  and go to the pages themselves wherever a single word carries weight.
 
 What that reading found, recorded so a later reviewer can tell whether the facts
 moved rather than having to guess:
