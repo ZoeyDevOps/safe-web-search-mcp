@@ -196,7 +196,7 @@ moved rather than having to guess:
 
 The second reason given in the first section - that comparable MIT-licensed
 servers parse the same results page and remain publicly available - was re-tested
-on the same date, being the limb most exposed to change. It moved, and what its
+on 2026-08-15, being the limb most exposed to change. It moved, and what its
 moving means for the reasoning is set out in that first section rather than
 repeated here. Recorded here is only how it was checked and what that
 established: one comparable project, read in its source rather than in its
@@ -206,8 +206,13 @@ source is the whole of it - not a population, and not a survey. No legal action
 against projects of this kind was found, which on the enforcement pattern
 described above adds nothing either way.
 
+Each limb carries its own date above, because re-reading the provider's pages
+does not re-test whether comparable projects still parse this endpoint. One date
+spanning both would claim more than was done, so where the two were checked on
+different days they are recorded on different days.
+
 Re-read those pages and re-test both limbs at each release instead of carrying
-this date forward. A summary of another party's terms with no date attached
+these dates forward. A summary of another party's terms with no date attached
 cannot be told apart from a current one, which is the failure it invites: quoting
 it back years later as though it still described the live pages. Where a fact has
 moved, reopen the position that rested on it rather than editing this summary to

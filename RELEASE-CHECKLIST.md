@@ -15,9 +15,21 @@ release, because the facts it rests on can change without notice.
       partnership or developer guidance from their official pages.
 - [ ] Record the review date and the exact provider endpoint or API being used,
       in the review record under **Provider terms** in
-      [PROVIDER-NOTICE.md](PROVIDER-NOTICE.md). The endpoint is recorded there
-      already; the date of the last reading is not, and no release should be
-      tagged while it says so. Write the date the pages were actually read.
+      [PROVIDER-NOTICE.md](PROVIDER-NOTICE.md). Both are recorded there. Write
+      the date the pages were actually read, never the date of the release, and
+      never a date carried over from the previous one.
+- [ ] Re-read those pages on the day the release is tagged, unless the tag lands
+      on the same calendar day as the last reading. Recording a reading from days
+      earlier as this release's review is carrying the date forward with extra
+      steps, which is the practice this section exists to prevent. Re-reading is
+      three page fetches, so decide this in advance rather than leaving it to
+      whoever wants to tag. Any date this changes must land in the pre-tag commit
+      required by section 5, not after the tag.
+- [ ] Date each limb of the reasoning to the day that limb was actually tested,
+      never to one date covering all of them. Re-reading the provider's pages
+      does not re-test whether comparable projects still parse the same endpoint,
+      so a single date spanning both claims more than was done. Two dates that
+      are honest beat one that is tidy.
 - [ ] Confirm `PROVIDER-NOTICE.md` still describes the position accurately: no
       written authorization sought or obtained, published as an accepted
       documented risk, on reasoning specific to the author's jurisdiction and
@@ -158,8 +170,12 @@ release, because the facts it rests on can change without notice.
       all of them stop being true together. `README.md` opens with a **Release
       status** paragraph asserting that no tagged release has been published and
       that `1.0.0` is only what the server reports about itself; both halves are
-      false in the tree the tag points at. `SECURITY.md` states its
-      supported-version rule conditionally and needs no edit here.
+      false in the tree the tag points at. `PROVIDER-NOTICE.md` carries the third:
+      if section 1's re-reading moved the provider review date, that new date has
+      to be in this commit too, or the tag points at a tree whose review record
+      shows an earlier reading than the review this release actually had.
+      `SECURITY.md` states its supported-version rule conditionally and needs no
+      edit here.
 - [ ] Delete and recreate any tag that was created against an `## Unreleased`
       heading before that tag is pushed. Such a tag records a validated
       pre-publication state, not a release; replace it with a tag on the dated
