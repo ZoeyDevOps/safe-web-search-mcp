@@ -3,6 +3,8 @@
 Notable user-visible changes are recorded here, along with what each release was
 verified against. Versions follow Semantic Versioning.
 
+## Unreleased
+
 ## 1.0.0 - 2026-08-16
 
 Initial public release.
