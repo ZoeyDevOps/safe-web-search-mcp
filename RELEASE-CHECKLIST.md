@@ -139,11 +139,19 @@ release, because the facts it rests on can change without notice.
       must substitute an absolute local path.
 - [ ] Keep the version consistent in source, User-Agent, documentation,
       changelog, tag, and archive name.
-- [ ] Set the changelog heading to `## <version> - <publication date>` and commit
-      that change **before** creating the tag, then create the tag at that
-      commit. A tag made while the heading still reads `## Unreleased` violates
-      the version-consistency item above, because the tagged tree does not name
-      the version it claims.
+- [ ] Set the changelog heading to `## <version> - <publication date>`, record
+      under it what the release was verified against, and commit both **before**
+      creating the tag, then create the tag at that commit. A tag made while the
+      heading still reads `## Unreleased` violates the version-consistency item
+      above, because the tagged tree does not name the version it claims.
+- [ ] Write that verification record only after every gate in this list has
+      passed, never as each one closes. A record written early states an
+      incomplete set of checks in the same voice as a complete one, and nothing
+      later distinguishes them. Name the environment, the host and its version,
+      and the checks that actually ran. Cite the manifest for the server hash
+      rather than copying it: the version-consistency item above covers versions,
+      not hashes, so a second copy of a hash has nothing checking it and a
+      truncated one cannot be verified while still looking as though it could.
 - [ ] In that same pre-tag commit, correct every other statement that is written
       for a repository with no release. The changelog heading is not the only
       place the tree describes its own release state, and a tag is the moment
